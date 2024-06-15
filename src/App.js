@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import JSZip from 'jszip';
+import React, { useState } from "react";
+import JSZip from "jszip";
 
 const App = () => {
   const [files, setFiles] = useState([]);
@@ -8,11 +8,15 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [zipUrl, setZipUrl] = useState(null);
 
+  const extractFileName = (fileName) => {
+    return fileName.substring(0, fileName.lastIndexOf("."));
+  };
+
   const handleFileChange = (e) => {
     const fileList = e.target.files;
     const fileArray = Array.from(fileList);
     setFiles(fileArray);
-    const nameArray = fileArray.map((file) => file.name);
+    const nameArray = fileArray.map((file) => extractFileName(file.name));
     setOriginalFileNames(nameArray);
   };
 
@@ -29,7 +33,7 @@ const App = () => {
 
       // Add converted files to ZIP with original names
       convertedFiles.forEach((file, index) => {
-        zip.file(`${originalNamesSubset[index]}.png`, file);
+        zip.file(`${originalNamesSubset[index]}.png`, file, { binary: true });
       });
 
       // Update progress
@@ -40,7 +44,7 @@ const App = () => {
     }
 
     // Generate ZIP file
-    const blob = await zip.generateAsync({ type: 'blob' });
+    const blob = await zip.generateAsync({ type: "blob" });
 
     // Create download URL
     const url = URL.createObjectURL(blob);
@@ -55,7 +59,7 @@ const App = () => {
       filesSubset.map(async (file) => {
         // Simulating conversion to PNG (replace with actual conversion logic)
         // For simulation, return a Blob representing a PNG file
-        return new Blob([file], { type: 'image/png' });
+        return new Blob([file], { type: "image/png" });
       })
     );
     return convertedFiles;
@@ -63,9 +67,9 @@ const App = () => {
 
   const handleDownload = () => {
     if (zipUrl) {
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = zipUrl;
-      link.setAttribute('download', 'converted_images.zip');
+      link.setAttribute("download", "converted_images.zip");
       document.body.appendChild(link);
       link.click();
     }
@@ -76,7 +80,9 @@ const App = () => {
       <input type="file" multiple onChange={handleFileChange} />
       <button onClick={simulateConversion}>Convert to PNG</button>
       {loading && <div>Loading...</div>}
-      <div>Progress: {progress}/{files.length}</div>
+      <div>
+        Progress: {progress}/{files.length}
+      </div>
       {zipUrl && <button onClick={handleDownload}>Download ZIP</button>}
     </div>
   );
