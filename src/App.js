@@ -3,12 +3,17 @@ import JSZip from 'jszip';
 
 const App = () => {
   const [files, setFiles] = useState([]);
+  const [originalFileNames, setOriginalFileNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [zipUrl, setZipUrl] = useState(null);
 
   const handleFileChange = (e) => {
-    setFiles([...e.target.files]); // Convert FileList to an array
+    const fileList = e.target.files;
+    const fileArray = Array.from(fileList);
+    setFiles(fileArray);
+    const nameArray = fileArray.map((file) => file.name);
+    setOriginalFileNames(nameArray);
   };
 
   const simulateConversion = async () => {
@@ -17,13 +22,14 @@ const App = () => {
 
     for (let i = 0; i < files.length; i += 50) {
       const filesSubset = files.slice(i, i + 50);
+      const originalNamesSubset = originalFileNames.slice(i, i + 50);
 
       // Simulating image conversion
       const convertedFiles = await simulateConversionProcess(filesSubset);
 
-      // Add converted files to ZIP
+      // Add converted files to ZIP with original names
       convertedFiles.forEach((file, index) => {
-        zip.file(`image_${i + index + 1}.png`, file);
+        zip.file(`${originalNamesSubset[index]}.png`, file);
       });
 
       // Update progress
